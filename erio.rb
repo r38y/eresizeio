@@ -2,6 +2,7 @@
 require 'mini_magick'
 
 class Erio < Sinatra::Base
+  # use Rack::FiberPool, size: 25
   ORIGIN = 'http://loseitorloseit.com'.freeze
 
   get '/' do

@@ -4,6 +4,7 @@ ruby '1.9.3'
 
 gem 'sinatra'
 gem 'mini_magick'
+gem 'rack-fiber_pool'
 gem 'thin'
 gem 'puma'
 
