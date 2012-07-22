@@ -1,8 +1,9 @@
 # repeat 10 (curl http://localhost:9292/photos/4215/original/photo.JPG &)
 require 'mini_magick'
+require 'sinatra/synchrony'
 
 class Erio < Sinatra::Base
-  # use Rack::FiberPool, size: 25
+  register Sinatra::Synchrony
   ORIGIN = 'http://loseitorloseit.com'.freeze
 
   get '/' do
@@ -34,7 +35,10 @@ class Erio < Sinatra::Base
   end
 
   def image
-    @image ||= MiniMagick::Image.open(source)
+    @aimage ||= begin
+      http = EM::Synchrony.sync EventMachine::HttpRequest.new(source).get
+      MiniMagick::Image.read(http.response)
+    end
   end
 
   def path
