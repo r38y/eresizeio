@@ -4,6 +4,10 @@ require 'mini_magick'
 class Erio < Sinatra::Base
   ORIGIN = 'http://loseitorloseit.com'.freeze
 
+  get '/' do
+    'Hi there'
+  end
+
   get '/*' do
     image.resize dimensions
 
