@@ -13,3 +13,7 @@ There is a syncronous version in the "sync" branch
 # Numbers
 
 The async version can do 4-5x as many requests as the sync version.
+
+# Production test
+
+http://erio.herokuapp.com/photos/4215/original/photo.JPG?h=150
