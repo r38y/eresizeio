@@ -1,19 +1,19 @@
 # ab -n 100 -c 25 http://erio.herokuapp.com/photos/4215/original/photo.JPG\?w\=300
 # repeat 10 (curl http://localhost:9292/photos/4215/original/photo.JPG &)
 require 'mini_magick'
-require 'sinatra/synchrony'
-require 'em-synchrony/em-http'
+# require 'sinatra/synchrony'
+# require 'em-synchrony/em-http'
 
-def system_call(command)
-  f = Fiber.current
-  EM.system(command) {|output, status|
-    f.resume([ output, status ])
-  }
-  Fiber.yield
-end
+# def system_call(command)
+#   f = Fiber.current
+#   EM.system(command) {|output, status|
+#     f.resume([ output, status ])
+#   }
+#   Fiber.yield
+# end
 
 class Erio < Sinatra::Base
-  register Sinatra::Synchrony
+  # register Sinatra::Synchrony
   ORIGIN = 'http://loseitorloseit.com'.freeze
 
   get '/' do
@@ -21,14 +21,15 @@ class Erio < Sinatra::Base
   end
 
   get '/*' do
-    http = EventMachine::HttpRequest.new(source).get
-    image = MiniMagick::Image.read(http.response)
+    # http = EventMachine::HttpRequest.new(source).get
+    image = MiniMagick::Image.open(source)
 
-    command_builder = MiniMagick::CommandBuilder.new(:mogrify)
-    command_builder.resize dimensions
-    command_builder << image.path
+    image.resize dimensions
+    # command_builder = MiniMagick::CommandBuilder.new(:mogrify)
+    # command_builder.resize dimensions
+    # command_builder << image.path
 
-    output = system_call(command_builder.command)
+    # output = system_call(command_builder.command)
 
     image.write(destination_path)
 

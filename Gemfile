@@ -4,7 +4,7 @@ ruby '1.9.3'
 
 gem 'sinatra'
 gem 'mini_magick'
-gem 'sinatra-synchrony'
+# gem 'sinatra-synchrony'
 gem 'thin'
 
 group :development do
