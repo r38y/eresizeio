@@ -12,8 +12,6 @@ class Erio < Sinatra::Base
 
   get '/*' do
     resize_image
-
-    image[:dimensions].inspect
     # https://github.com/igrigorik/em-synchrony
     send_file destination_path
   end
