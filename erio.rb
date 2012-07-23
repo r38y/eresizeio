@@ -23,21 +23,23 @@ class Erio < Sinatra::Base
   get '/*' do
     http = EventMachine::HttpRequest.new(source).get
     image = MiniMagick::Image.read(http.response)
+
     command_builder = MiniMagick::CommandBuilder.new(:mogrify)
-    command_builder << image.path
     command_builder.resize dimensions
+    command_builder << image.path
+
     output = system_call(command_builder.command)
-    puts output.inspect
+
     image.write(destination_path)
-    image[:dimensions].inspect
-    # send_file destination_path
+
+    send_file destination_path
   end
 
   def dimensions
     if params[:w] || params[:h]
       [params[:w], params[:h]].join('x')
     else
-      '300x'
+      '300x100'
     end
   end
 
