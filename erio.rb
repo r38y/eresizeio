@@ -11,10 +11,10 @@ class Erio < Sinatra::Base
   end
 
   get '/*' do
-    image.resize dimensions
+    resize_image
 
-    image.write(destination_path)
-
+    image[:dimensions].inspect
+    # https://github.com/igrigorik/em-synchrony
     send_file destination_path
   end
 
@@ -24,6 +24,19 @@ class Erio < Sinatra::Base
     else
       '300x'
     end
+  end
+
+  def resize_image
+    command_builder = MiniMagick::CommandBuilder.new(:mogrify)
+    command_builder << image.path
+    command_builder.resize dimensions
+    # puts command_builder.command
+
+    EM.synchrony do
+      EM.system(command_builder.command) {|output, status|
+      }
+    end
+    image.write(destination_path)
   end
 
   def filename
