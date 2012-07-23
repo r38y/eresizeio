@@ -1,19 +1,36 @@
 # repeat 10 (curl http://localhost:9292/photos/4215/original/photo.JPG &)
 require 'mini_magick'
 require 'sinatra/synchrony'
+require 'em-synchrony/em-http'
+
+def system_call(command)
+  f = Fiber.current
+  puts command
+  EM.system(command) {|output, status|
+    f.resume([ output, status ])
+  }
+  Fiber.yield
+end
 
 class Erio < Sinatra::Base
   register Sinatra::Synchrony
   ORIGIN = 'http://loseitorloseit.com'.freeze
 
   get '/' do
-    'Hi there'
+    'hi there'
   end
 
   get '/*' do
-    resize_image
-    # https://github.com/igrigorik/em-synchrony
-    send_file destination_path
+    http = EventMachine::HttpRequest.new(source).get
+    image = MiniMagick::Image.read(http.response)
+    command_builder = MiniMagick::CommandBuilder.new(:mogrify)
+    command_builder << image.path
+    command_builder.resize dimensions
+    output = system_call(command_builder.command)
+    puts output.inspect
+    image.write(destination_path)
+    image[:dimensions].inspect
+    # send_file destination_path
   end
 
   def dimensions
@@ -24,19 +41,6 @@ class Erio < Sinatra::Base
     end
   end
 
-  def resize_image
-    command_builder = MiniMagick::CommandBuilder.new(:mogrify)
-    command_builder << image.path
-    command_builder.resize dimensions
-    # puts command_builder.command
-
-    EM.synchrony do
-      EM.system(command_builder.command) {|output, status|
-      }
-    end
-    image.write(destination_path)
-  end
-
   def filename
     File.basename(source)
   end
@@ -45,12 +49,12 @@ class Erio < Sinatra::Base
     File.join(Dir.tmpdir, filename)
   end
 
-  def image
-    @aimage ||= begin
-      http = EM::Synchrony.sync EventMachine::HttpRequest.new(source).get
-      MiniMagick::Image.read(http.response)
-    end
-  end
+  # def image
+  #   @image ||= begin
+  #     http = EM::Synchrony.sync EventMachine::HttpRequest.new(source).get
+  #     MiniMagick::Image.read(http.response)
+  #   end
+  # end
 
   def path
     params[:splat].first
