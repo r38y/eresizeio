@@ -1,3 +1,4 @@
+# ab -n 100 -c 25 http://erio.herokuapp.com/photos/4215/original/photo.JPG\?w\=300
 # repeat 10 (curl http://localhost:9292/photos/4215/original/photo.JPG &)
 require 'mini_magick'
 require 'sinatra/synchrony'
@@ -5,7 +6,6 @@ require 'em-synchrony/em-http'
 
 def system_call(command)
   f = Fiber.current
-  puts command
   EM.system(command) {|output, status|
     f.resume([ output, status ])
   }
